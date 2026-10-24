@@ -95,9 +95,34 @@ jobs:
           curl -sf http://127.0.0.1:3000/login | grep -q "Sign in"
           [ "$(curl -s -o /dev/null -w '%{http_code}' http://127.0.0.1:3000/)" = 307 ]
           [ "$(curl -s -o /dev/null -w '%{http_code}' http://127.0.0.1:3000/runner-api/api/services)" = 401 ]
+      # The all-in-one image (Dockerfile.aio): the panel with the runner's
+      # latest release inside. Both answer, and the panel reaches its runner.
+      - name: Build all in one for amd64
+        uses: docker/build-push-action@v7
+        with:
+          context: .
+          file: Dockerfile.aio
+          platforms: linux/amd64
+          load: true
+          tags: panel:aio
+          build-args: VERSION=${{ steps.meta.outputs.version }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max,scope=aio
+      - name: All in one starts and serves
+        run: |
+          docker run -d --name aio -p 3001:3000 -p 8080:8080 \
+            -e ZEROKO_TOKEN=e2e-root-token-0123456789abcdef0123456789 \
+            -e ZEROKO_PANEL_PASSWORD=e2e-password panel:aio
+          for _ in $(seq 30); do curl -sf http://127.0.0.1:3001/healthz >/dev/null && break; sleep 1; done
+          curl -sf http://127.0.0.1:3001/login | grep -q "Sign in"
+          [ "$(curl -s -o /dev/null -w '%{http_code}' -H 'Host: nothing.example' http://127.0.0.1:8080/)" = 404 ]
+          docker exec aio node -e "fetch('http://127.0.0.1:8081/api/services', { headers: { Authorization: 'Bearer e2e-root-token-0123456789abcdef0123456789' } }).then((r) => process.exit(r.ok ? 0 : 1))"
+          [ "$(docker inspect -f '{{.State.Health.Status}}' aio)" != unhealthy ]
       - if: failure()
         name: Logs of a failed check
-        run: docker logs panel 2>&1 | tail -200 || true
+        run: |
+          docker logs panel 2>&1 | tail -200 || true
+          docker logs aio 2>&1 | tail -200 || true
 
       - if: github.event_name != 'pull_request' && github.ref == 'refs/heads/main'
         uses: docker/login-action@v4
@@ -110,14 +135,13 @@ jobs:
       - if: github.event_name != 'pull_request' && github.ref == 'refs/heads/main'
         id: tags
         run: |
-          {
-            echo "tags<<EOF"
-            echo "${{ steps.meta.outputs.image }}:sha-$GITHUB_SHA"
-            if [ "$(git ls-remote origin refs/heads/main | cut -f1)" = "$GITHUB_SHA" ]; then
-              echo "${{ steps.meta.outputs.image }}:dev"
-            fi
+          newest=$([ "$(git ls-remote origin refs/heads/main | cut -f1)" = "$GITHUB_SHA" ] && echo 1 || true)
+          for suffix in "" -aio; do
+            [ -z "$suffix" ] && echo "tags<<EOF" || echo "aio<<EOF"
+            echo "${{ steps.meta.outputs.image }}:sha-$GITHUB_SHA$suffix"
+            [ -n "$newest" ] && echo "${{ steps.meta.outputs.image }}:dev$suffix"
             echo "EOF"
-          } >> "$GITHUB_OUTPUT"
+          done >> "$GITHUB_OUTPUT"
       - if: github.event_name != 'pull_request' && github.ref == 'refs/heads/main'
         name: Publish
         uses: docker/build-push-action@v7
@@ -128,6 +152,18 @@ jobs:
           tags: ${{ steps.tags.outputs.tags }}
           build-args: VERSION=${{ steps.meta.outputs.version }}
           cache-from: type=gha
+      # The all-in-one image under the same tags, each with -aio.
+      - if: github.event_name != 'pull_request' && github.ref == 'refs/heads/main'
+        name: Publish all in one
+        uses: docker/build-push-action@v7
+        with:
+          context: .
+          file: Dockerfile.aio
+          platforms: linux/amd64,linux/arm64
+          push: true
+          tags: ${{ steps.tags.outputs.aio }}
+          build-args: VERSION=${{ steps.meta.outputs.version }}
+          cache-from: type=gha,scope=aio
 
   release:
     if: github.ref_type == 'tag'
@@ -182,10 +218,12 @@ jobs:
           built=$(docker buildx imagetools inspect "$image:sha-$GITHUB_SHA" --format '{{json .Image}}' \
             | jq -r '.["linux/amd64"].config.Labels["org.opencontainers.image.version"]')
           [ "$built" = "$v" ] || { echo "::error::this commit's image is $built, not $v: push the tag with its commit (git push --atomic origin main $GITHUB_REF_NAME)"; exit 1; }
-          tags=(-t "$image:$v" -t "$image:${v%.*}" -t "$image:latest")
-          [[ "$v" == 0.* ]] || tags+=(-t "$image:${v%%.*}")
-          docker buildx imagetools create "${tags[@]}" "$image:sha-$GITHUB_SHA"
-          docker buildx imagetools inspect "$image:$v"
+          for suffix in "" -aio; do
+            tags=(-t "$image:$v$suffix" -t "$image:${v%.*}$suffix" -t "$image:latest$suffix")
+            [[ "$v" == 0.* ]] || tags+=(-t "$image:${v%%.*}$suffix")
+            docker buildx imagetools create "${tags[@]}" "$image:sha-$GITHUB_SHA$suffix"
+            docker buildx imagetools inspect "$image:$v$suffix"
+          done
       - name: GitHub release
         run: |
           v="${{ steps.check.outputs.version }}"

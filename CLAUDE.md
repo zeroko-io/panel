@@ -76,6 +76,10 @@ pull requests) it type-checks, lints, checks formatting, builds the image and
 checks that it starts; on `main` it publishes it for amd64 and arm64 as
 `sha-<commit>` and, while the commit is `main`'s newest, `dev`. The image's
 last stage only copies files, so arm64 needs no emulation: keep it so.
+`Dockerfile.aio` is the all-in-one image: the panel on Debian with the
+runner's binaries copied from its published image (`RUNNER_TAG`, `latest`
+by default) and `aio/start.sh` running both; it's checked and published
+beside the panel's, every tag with `-aio`.
 
 Versions come from git: `git describe` of the `vX.Y.Z` tags, passed to the
 build as `VERSION`. To release: turn `## Unreleased` in `CHANGELOG.md` into

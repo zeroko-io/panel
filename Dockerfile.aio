@@ -1,0 +1,47 @@
+# syntax=docker/dockerfile:1
+# The panel and its runner in one image ("all in one"): the panel as in the
+# panel's own image, and the runner's binaries (the runner and workerd)
+# copied from its published image, so this repository needs none of its
+# code. Debian, as the runner's binaries are built for it.
+#   docker build -f Dockerfile.aio -t panel:aio .
+# RUNNER_TAG picks the runner: its latest release by default.
+
+ARG RUNNER_TAG=latest
+FROM ghcr.io/zeroko-io/runner:${RUNNER_TAG} AS runner
+
+FROM --platform=$BUILDPLATFORM node:lts-bookworm-slim AS build
+WORKDIR /src
+COPY package.json package-lock.json ./
+ENV CYPRESS_INSTALL_BINARY=0
+RUN npm ci --no-audit --no-fund
+COPY . .
+ARG VERSION=dev
+ENV NEXT_TELEMETRY_DISABLED=1 VERSION=$VERSION
+RUN npm run build
+
+FROM node:lts-bookworm-slim
+ARG VERSION=dev
+ARG RUNNER_TAG
+LABEL org.opencontainers.image.title="Zeroko Panel (all in one)" \
+      org.opencontainers.image.description="The panel and its Zeroko runner, in one image" \
+      org.opencontainers.image.source="https://github.com/zeroko-io/panel" \
+      org.opencontainers.image.licenses="MIT AND AGPL-3.0-only" \
+      org.opencontainers.image.version=$VERSION \
+      io.zeroko.runner=$RUNNER_TAG
+# Nothing runs here while building (no emulation for arm64): the runner's
+# binaries and the certificates it reaches out with, from its image.
+COPY --from=runner /usr/bin/runner /usr/bin/workerd /usr/bin/
+COPY --from=runner /etc/ssl/certs/ca-certificates.crt /etc/ssl/certs/
+WORKDIR /app
+COPY --from=build --chown=node:node /src/.next/standalone ./
+COPY --from=build --chown=node:node /src/.next/static ./.next/static
+COPY aio/start.sh /usr/local/bin/zeroko
+# The runner starts as root only to give /data to ZEROKO_UID and ZEROKO_GID
+# (1000, the node user, by default) and runs as them; the panel runs as
+# node. The runner's API stays inside, on 8081.
+ENV NODE_ENV=production NEXT_TELEMETRY_DISABLED=1 PORT=3000 HOSTNAME=0.0.0.0 \
+    ZEROKO_RUNNER_URL=http://127.0.0.1:8081
+VOLUME /data
+EXPOSE 3000 8080
+HEALTHCHECK --interval=30s --timeout=3s CMD ["node", "-e", "Promise.all([3000, 8081].map((p) => fetch(`http://127.0.0.1:${p}/healthz`).then((r) => { if (!r.ok) throw 0 }))).catch(() => process.exit(1))"]
+ENTRYPOINT ["/usr/local/bin/zeroko"]

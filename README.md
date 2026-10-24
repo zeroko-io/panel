@@ -9,6 +9,8 @@ cp .env.example .env    # set the token and the password
 docker compose up -d    # then put a reverse proxy with TLS in front
 ```
 
+Or in one container, with the runner inside: `ghcr.io/zeroko-io/panel:latest-aio`.
+
 The docs are at [zeroko.space/docs](https://zeroko.space/docs): installing, the
 panel, the runner and the API. What changed is in the
 [changelog](CHANGELOG.md).

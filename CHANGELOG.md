@@ -1,5 +1,10 @@
 # Changelog
 
+## Unreleased
+
+- `panel:<tag>-aio`, all in one: the panel with the runner inside
+  (`Dockerfile.aio`), published beside every panel image.
+
 ## 0.1.0
 
 The first version of the open source panel.

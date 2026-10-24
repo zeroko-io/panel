@@ -10,6 +10,8 @@ describe("sign-in", () => {
   })
 
   it("signs in and out", () => {
+    // The wrong password before holds sign-in for a second.
+    cy.wait(1100)
     cy.open("/login")
     cy.env(["password"]).then(({ password }) =>
       cy.get("input[name=password]").type(password, { log: false })
