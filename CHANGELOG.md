@@ -1,9 +1,10 @@
 # Changelog
 
-## Unreleased
+## 0.1.1
 
 - `panel:<tag>-aio`, all in one: the panel with the runner inside
-  (`Dockerfile.aio`), published beside every panel image.
+  (`Dockerfile.aio`), published beside every panel image, with
+  `docker-compose-aio.yml` and `.env.aio.example` to start it.
 
 ## 0.1.0
 

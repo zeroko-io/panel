@@ -1,0 +1,28 @@
+# Zeroko on one machine, in one container: the panel with the runner inside
+# (the panel's -aio image).
+#
+#   cp .env.aio.example .env     # and fill it in
+#   docker compose -f docker-compose-aio.yml up -d
+#
+# The panel answers on port 3000 and the services on port 8080, at
+# <name>.<domain> (the domain is set in the panel's System page). Put your
+# own TLS proxy in front of both. The runner's API stays inside the
+# container: the panel reaches it, and agents use it through the panel's
+# /api. The runner is the newest release when the image was built.
+
+services:
+  zeroko:
+    image: ghcr.io/zeroko-io/panel:${PANEL_TAG:-latest}-aio
+    restart: unless-stopped
+    environment:
+      ZEROKO_TOKEN: ${ZEROKO_TOKEN:?set ZEROKO_TOKEN in .env}
+      ZEROKO_PANEL_PASSWORD: ${ZEROKO_PANEL_PASSWORD:?set ZEROKO_PANEL_PASSWORD in .env}
+      ZEROKO_PANEL_URL: ${ZEROKO_PANEL_URL:-}
+    ports:
+      - "${PANEL_PORT:-3000}:3000"
+      - "${GATEWAY_PORT:-8080}:8080"
+    volumes:
+      - data:/data
+
+volumes:
+  data:
