@@ -9,7 +9,7 @@ cp .env.example .env    # set the token and the password
 docker compose up -d    # then put a reverse proxy with TLS in front
 ```
 
-The docs are at [zeroko.io/docs](https://zeroko.io/docs): installing, the
+The docs are at [zeroko.space/docs](https://zeroko.space/docs): installing, the
 panel, the runner and the API. What changed is in the
 [changelog](CHANGELOG.md).
 
