@@ -1,0 +1,36 @@
+# Zeroko on one machine: the runner and its panel.
+#
+#   cp .env.example .env     # and fill it in
+#   docker compose up -d
+#
+# The panel answers on port 3000 and the services on port 8080, at
+# <name>.<domain> (the domain is set in the panel's System page). Put your
+# own TLS proxy in front of both. The runner's API stays inside: the panel
+# reaches it, and agents use it through the panel's /api.
+
+services:
+  runner:
+    image: ghcr.io/zeroko-io/runner:${RUNNER_TAG:-latest}
+    restart: unless-stopped
+    environment:
+      ZEROKO_TOKEN: ${ZEROKO_TOKEN:?set ZEROKO_TOKEN in .env}
+    ports:
+      - "${GATEWAY_PORT:-8080}:8080"
+    volumes:
+      - runner-data:/data
+
+  panel:
+    image: ghcr.io/zeroko-io/panel:${PANEL_TAG:-latest}
+    restart: unless-stopped
+    environment:
+      ZEROKO_TOKEN: ${ZEROKO_TOKEN}
+      ZEROKO_PANEL_PASSWORD: ${ZEROKO_PANEL_PASSWORD:?set ZEROKO_PANEL_PASSWORD in .env}
+      ZEROKO_RUNNER_URL: http://runner:8081
+      ZEROKO_PANEL_URL: ${ZEROKO_PANEL_URL:-}
+    ports:
+      - "${PANEL_PORT:-3000}:3000"
+    depends_on:
+      - runner
+
+volumes:
+  runner-data:

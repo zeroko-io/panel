@@ -1,0 +1,331 @@
+/* Zeroko's look, "Ledger": warm paper or warm black, hairline rules instead
+   of cards. Three typefaces: a serif for titles and figures, Geist for the
+   interface, Geist Mono for labels, names and logs.
+
+   Every color is light-dark(light, dark): color-scheme picks one. With no
+   data-theme on <html> it follows the system; data-theme="light" or "dark"
+   fixes it. shadcn's components read these tokens; brand, faint, rule,
+   field, ok, warn and info are ours. The brand accent is one token: change
+   it here and only here. */
+@import "tailwindcss";
+@import "tw-animate-css";
+@import "shadcn/tailwind.css";
+
+@custom-variant dark {
+  &:where([data-theme="dark"], [data-theme="dark"] *) {
+    @slot;
+  }
+  @media (prefers-color-scheme: dark) {
+    &:where(:not([data-theme="light"], [data-theme="light"] *)) {
+      @slot;
+    }
+  }
+}
+
+@theme inline {
+  --font-heading: var(--font-serif);
+  --font-sans: var(--font-sans);
+  --font-mono: var(--font-mono);
+  --font-serif: var(--font-serif);
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --color-brand: var(--brand);
+  --color-faint: var(--faint);
+  --color-rule: var(--rule);
+  --color-field: var(--field);
+  --color-ok: var(--ok);
+  --color-warn: var(--warn);
+  --color-info: var(--info);
+  --color-chart-1: var(--chart-1);
+  --color-chart-2: var(--chart-2);
+  --color-chart-3: var(--chart-3);
+  --color-chart-4: var(--chart-4);
+  --color-chart-5: var(--chart-5);
+  --color-sidebar: var(--sidebar);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-ring: var(--sidebar-ring);
+  --radius-sm: calc(var(--radius) * 0.6);
+  --radius-md: calc(var(--radius) * 0.8);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) * 1.4);
+  --radius-2xl: calc(var(--radius) * 1.8);
+  --radius-3xl: calc(var(--radius) * 2.2);
+  --radius-4xl: calc(var(--radius) * 2.6);
+  --animate-grow: zk-grow 700ms cubic-bezier(0.2, 0.7, 0.2, 1) both;
+  --animate-breathe: zk-breathe 2.8s ease-in-out infinite;
+}
+
+:root {
+  color-scheme: light dark;
+  --background: light-dark(#f5f3ee, #0f0e0d);
+  --foreground: light-dark(#1b1916, #f2f0ed);
+  --card: light-dark(#fbfaf7, #161412);
+  --card-foreground: var(--foreground);
+  --popover: var(--card);
+  --popover-foreground: var(--foreground);
+  --primary: var(--foreground);
+  --primary-foreground: var(--background);
+  --secondary: light-dark(#ebe7e0, #1d1b19);
+  --secondary-foreground: var(--foreground);
+  --muted: var(--secondary);
+  --muted-foreground: light-dark(#6e6862, #8f8983);
+  --accent: var(--secondary);
+  --accent-foreground: var(--foreground);
+  --destructive: light-dark(#c23f2c, #ef7a6a);
+  --border: light-dark(#d9d3ca, #2a2724);
+  --input: var(--border);
+  --ring: var(--muted-foreground);
+  --brand: light-dark(#d0532a, #e8673a);
+  --faint: light-dark(#9c958d, #6b655f);
+  --rule: light-dark(#e7e2da, #1d1b19);
+  --field: light-dark(#fbfaf7, #161412);
+  --ok: light-dark(#2c8a4e, #6fcf8e);
+  --warn: light-dark(#a8740f, #e8b04a);
+  --info: light-dark(#3563ad, #8fb8f0);
+  --chart-1: var(--brand);
+  --chart-2: var(--ok);
+  --chart-3: var(--warn);
+  --chart-4: var(--info);
+  --chart-5: var(--muted-foreground);
+  --radius: 0.1875rem;
+  --sidebar: var(--background);
+  --sidebar-foreground: var(--foreground);
+  --sidebar-primary: var(--primary);
+  --sidebar-primary-foreground: var(--primary-foreground);
+  --sidebar-accent: var(--secondary);
+  --sidebar-accent-foreground: var(--foreground);
+  --sidebar-border: var(--border);
+  --sidebar-ring: var(--ring);
+}
+
+:root[data-theme="light"] {
+  color-scheme: light;
+}
+
+:root[data-theme="dark"] {
+  color-scheme: dark;
+}
+
+/* The small uppercase mono label over figures, columns and fields. */
+@utility kicker {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  line-height: 1.4;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--muted-foreground);
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+  html {
+    /* Room for the scrollbar always, so pages that don't scroll don't shift
+       sideways. */
+    scrollbar-gutter: stable;
+    scrollbar-color: var(--border) transparent;
+    -webkit-tap-highlight-color: transparent;
+  }
+  body {
+    @apply bg-background font-sans text-sm text-foreground;
+    font-variant-numeric: tabular-nums;
+  }
+  ::selection {
+    @apply bg-brand/25;
+  }
+  :where(a, summary, [role="button"]):focus-visible {
+    @apply rounded-sm outline-2 outline-offset-2 outline-ring;
+  }
+}
+
+@keyframes zk-grow {
+  from {
+    transform: scaleX(0);
+  }
+}
+
+@keyframes zk-rise-bar {
+  from {
+    transform: scaleY(0);
+  }
+}
+
+@keyframes zk-breathe {
+  50% {
+    opacity: 0.35;
+  }
+}
+
+/* View transitions. Navigations move only the page: the header and the root
+   stay put. A page fades in from slightly below; going into something
+   slides forward, coming back slides back; shared names morph. The theme
+   switch crossfades the whole document. */
+::view-transition-old(root),
+::view-transition-new(root) {
+  animation: none;
+}
+
+:root[data-theme-switching]::view-transition-old(root) {
+  animation: 220ms ease-out both zk-vt-fade reverse;
+}
+
+:root[data-theme-switching]::view-transition-new(root) {
+  animation: 220ms ease-out both zk-vt-fade;
+}
+
+/* The header (zk-header) stays still above
+   the page as it moves: its new self at once, over nothing (its ground is
+   translucent), and crossfading only with the theme. */
+::view-transition-group(zk-header) {
+  z-index: 1;
+  animation: none;
+}
+
+::view-transition-old(zk-header) {
+  animation: none;
+  opacity: 0;
+}
+
+::view-transition-new(zk-header) {
+  animation: none;
+}
+
+:root[data-theme-switching]::view-transition-old(zk-header) {
+  opacity: 1;
+  animation: 220ms ease-out both zk-vt-fade reverse;
+}
+
+:root[data-theme-switching]::view-transition-new(zk-header) {
+  animation: 220ms ease-out both zk-vt-fade;
+}
+
+/* The old page goes at once and only the new one moves: an old page fading
+   out would draw over the new page's footer, and over whatever it was
+   scrolled past. */
+::view-transition-old(.page-out),
+::view-transition-old(.nav-forward),
+::view-transition-old(.nav-back) {
+  animation: none;
+  opacity: 0;
+}
+
+::view-transition-new(.page-in) {
+  animation:
+    200ms ease-out both zk-vt-fade,
+    260ms cubic-bezier(0.2, 0.7, 0.2, 1) both zk-vt-rise;
+}
+
+::view-transition-new(.nav-forward) {
+  --zk-slide: 16px;
+  animation:
+    200ms ease-out both zk-vt-fade,
+    300ms cubic-bezier(0.2, 0.7, 0.2, 1) both zk-vt-slide;
+}
+
+::view-transition-new(.nav-back) {
+  --zk-slide: -16px;
+  animation:
+    200ms ease-out both zk-vt-fade,
+    300ms cubic-bezier(0.2, 0.7, 0.2, 1) both zk-vt-slide;
+}
+
+/* A page's snapshots stay where they are: never a morph between boxes. */
+::view-transition-group(.page-in),
+::view-transition-group(.page-out),
+::view-transition-group(.nav-forward),
+::view-transition-group(.nav-back) {
+  animation: none;
+}
+
+/* A shared name (a service's, from its row to its title): only the new
+   text is drawn, scaled from the old box to its own and kept in proportion,
+   so it grows crisp instead of stretching two blurred texts. */
+::view-transition-group(.morph) {
+  animation-duration: 380ms;
+  animation-timing-function: cubic-bezier(0.2, 0.7, 0.2, 1);
+}
+
+::view-transition-old(.morph) {
+  animation: none;
+  opacity: 0;
+}
+
+::view-transition-new(.morph) {
+  animation: none;
+  width: auto;
+  height: 100%;
+}
+
+/* Page titles: the old one fades into the new one, each at its own size,
+   anchored at the start of the line. */
+::view-transition-group(.title) {
+  animation-duration: 240ms;
+  animation-timing-function: cubic-bezier(0.2, 0.7, 0.2, 1);
+}
+
+::view-transition-old(.title),
+::view-transition-new(.title) {
+  width: auto;
+  height: auto;
+  animation-duration: 200ms;
+}
+
+::view-transition-group(.tab) {
+  animation-duration: 260ms;
+  animation-timing-function: cubic-bezier(0.2, 0.7, 0.2, 1);
+}
+
+@keyframes zk-vt-fade {
+  from {
+    opacity: 0;
+  }
+}
+
+@keyframes zk-vt-rise {
+  from {
+    transform: translateY(6px);
+  }
+}
+
+@keyframes zk-vt-slide {
+  from {
+    transform: translateX(var(--zk-slide));
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  ::view-transition-group(*),
+  ::view-transition-old(*),
+  ::view-transition-new(*) {
+    animation: none !important;
+  }
+  *,
+  ::before,
+  ::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
