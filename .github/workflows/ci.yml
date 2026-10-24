@@ -111,12 +111,12 @@ jobs:
       - name: All in one starts and serves
         run: |
           docker run -d --name aio -p 3001:3000 -p 8080:8080 \
-            -e ZEROKO_TOKEN=e2e-root-token-0123456789abcdef0123456789 \
             -e ZEROKO_PANEL_PASSWORD=e2e-password panel:aio
           for _ in $(seq 30); do curl -sf http://127.0.0.1:3001/healthz >/dev/null && break; sleep 1; done
           curl -sf http://127.0.0.1:3001/login | grep -q "Sign in"
           [ "$(curl -s -o /dev/null -w '%{http_code}' -H 'Host: nothing.example' http://127.0.0.1:8080/)" = 404 ]
-          docker exec aio node -e "fetch('http://127.0.0.1:8081/api/services', { headers: { Authorization: 'Bearer e2e-root-token-0123456789abcdef0123456789' } }).then((r) => process.exit(r.ok ? 0 : 1))"
+          # Without ZEROKO_TOKEN, the token made on the first start works.
+          docker exec aio sh -c 'node -e "fetch(\"http://127.0.0.1:8081/api/services\", { headers: { Authorization: \"Bearer $(cat /data/.root-token)\" } }).then((r) => process.exit(r.ok ? 0 : 1))"'
           [ "$(docker inspect -f '{{.State.Health.Status}}' aio)" != unhealthy ]
       - if: failure()
         name: Logs of a failed check

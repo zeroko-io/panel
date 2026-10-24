@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.1.2
+
+- The all-in-one image needs no `ZEROKO_TOKEN`: without one, it makes a
+  root token on its first start and keeps it in its data volume. Only the
+  admin's password is needed.
+
 ## 0.1.1
 
 - `panel:<tag>-aio`, all in one: the panel with the runner inside

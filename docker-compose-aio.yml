@@ -15,7 +15,7 @@ services:
     image: ghcr.io/zeroko-io/panel:${PANEL_TAG:-latest}-aio
     restart: unless-stopped
     environment:
-      ZEROKO_TOKEN: ${ZEROKO_TOKEN:?set ZEROKO_TOKEN in .env}
+      ZEROKO_TOKEN: ${ZEROKO_TOKEN:-}
       ZEROKO_PANEL_PASSWORD: ${ZEROKO_PANEL_PASSWORD:?set ZEROKO_PANEL_PASSWORD in .env}
       ZEROKO_PANEL_URL: ${ZEROKO_PANEL_URL:-}
     ports:

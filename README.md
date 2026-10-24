@@ -12,7 +12,7 @@ docker compose up -d    # then put a reverse proxy with TLS in front
 Or in one container, the panel with the runner inside (`panel:latest-aio`):
 
 ```sh
-cp .env.aio.example .env
+cp .env.aio.example .env    # set the password
 docker compose -f docker-compose-aio.yml up -d
 ```
 
