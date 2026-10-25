@@ -59,6 +59,14 @@ describe("services", () => {
     cy.contains("tr", "cypress").should("not.exist")
   })
 
+  it("shows the runner's settings, the 0.3.0 ones too", () => {
+    cy.open("/system")
+    cy.contains("CPU per minute")
+    cy.contains("Realtime connections")
+    cy.contains("Requests per client")
+    cy.get("input[name=rate_limit]").should("have.attr", "min", "0")
+  })
+
   it("shows the system", () => {
     cy.open("/system")
     cy.get("h1").should("contain", "System")

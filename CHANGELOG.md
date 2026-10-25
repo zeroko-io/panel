@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- Settings: CPU per minute, realtime connections and requests per client,
+  with a runner that has them (0.3.0 and later).
 - `/mcp`: the runner's MCP server (runner 0.3.0 and later) at the panel's
   address, for agents with their own token, as `/api` is; the skill says
   so.

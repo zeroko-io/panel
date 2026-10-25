@@ -16,12 +16,15 @@ function NumberField({
   hint,
   unit,
   value,
+  min = 1,
 }: {
   name: keyof Settings
   label: string
   hint: string
   unit: string
   value: number
+  /** 0 where it means no limit. */
+  min?: number
 }) {
   return (
     <FieldRow label={label} hint={hint} htmlFor={name}>
@@ -29,7 +32,7 @@ function NumberField({
         id={name}
         name={name}
         type="number"
-        min={1}
+        min={min}
         required
         defaultValue={value}
         className="font-mono"
@@ -71,6 +74,12 @@ export function SettingsForm({ settings: s }: { settings: Settings }) {
             max_body_mb: n("max_body_mb"),
             heap_mb: n("heap_mb"),
             cpu_seconds: n("cpu_seconds"),
+            // Those of runner 0.3.0 and later, only to one that has them.
+            ...(s.cpu_seconds_per_minute !== undefined && {
+              cpu_seconds_per_minute: n("cpu_seconds_per_minute"),
+              realtime_connections: n("realtime_connections"),
+              rate_limit: n("rate_limit"),
+            }),
             idle_seconds: n("idle_seconds"),
             max_processes: n("max_processes"),
             disk_mb: n("disk_mb"),
@@ -144,6 +153,33 @@ export function SettingsForm({ settings: s }: { settings: Settings }) {
           unit="s"
           value={s.cpu_seconds}
         />
+        {s.cpu_seconds_per_minute !== undefined && (
+          <>
+            <NumberField
+              name="cpu_seconds_per_minute"
+              label="CPU per minute"
+              hint="Past it, a service waits until the minute fits; 0 for no limit."
+              unit="s"
+              min={0}
+              value={s.cpu_seconds_per_minute}
+            />
+            <NumberField
+              name="realtime_connections"
+              label="Realtime connections"
+              hint="Live connections a service holds at once."
+              unit=""
+              value={s.realtime_connections ?? 1000}
+            />
+            <NumberField
+              name="rate_limit"
+              label="Requests per client"
+              hint="A second, per service, unless it has its own; 0 for none."
+              unit="/s"
+              min={0}
+              value={s.rate_limit ?? 0}
+            />
+          </>
+        )}
         <NumberField
           name="idle_seconds"
           label="Idle timeout"

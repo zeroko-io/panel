@@ -173,6 +173,9 @@ export type Settings = {
   max_body_mb: number
   heap_mb: number
   cpu_seconds: number
+  cpu_seconds_per_minute?: number // CPU in any minute; past it, the service waits
+  realtime_connections?: number // per service
+  rate_limit?: number // requests a second per client, per service; 0 none
   idle_seconds: number
   max_processes: number
   disk_mb: number

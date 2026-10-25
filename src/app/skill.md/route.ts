@@ -19,6 +19,7 @@ export async function GET() {
     BASE: await publicUrl(),
     HEAP_MB: String(settings.heap_mb),
     CPU_SECONDS: String(settings.cpu_seconds),
+    CPU_PER_MINUTE: String(settings.cpu_seconds_per_minute ?? 30),
     DISK_MB: String(settings.disk_mb),
   }
   const body = template.replace(

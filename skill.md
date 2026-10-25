@@ -57,14 +57,15 @@ APIs (`fetch`, `Request`, `Response`, streams, `crypto.subtle`, `URL`,
   and `"bindings": {"ASSETS": "assets"}`.
 - `request.url` has the public host; the client's address is in
   `X-Forwarded-For`.
-- Outbound `fetch` and `connect()` reach public internet addresses only, and
+- Outbound `fetch` and `connect()` (plain TCP: use `fetch` for HTTPS) reach public internet addresses only, and
   only the hosts the service is allowed (any, unless set with `PATCH`
   below). A refused request answers `403` and a failed one (DNS, connection,
   timeout) `502`, both with an `X-Zeroko-Egress` header (`blocked` or
   `error`) and the reason in the body. Each one is in the logs.
 - Each service has a {{HEAP_MB}} MB heap. A request that keeps the CPU busy
   for {{CPU_SECONDS}} seconds restarts the service and fails the requests in
-  flight. Idle services stop and start again on the next request in a few
+  flight; past {{CPU_PER_MINUTE}} seconds of CPU in any minute, the service
+  waits until the minute fits. Idle services stop and start again on the next request in a few
   milliseconds.
 - A service's databases and files share a disk quota ({{DISK_MB}} MB unless
   set otherwise); a write past it fails with "the service's disk quota … is
@@ -275,7 +276,7 @@ Under `{{BASE}}/api`:
 GET    /services                              → [{name, url, status, ...}]
 POST   /services                              {"name": "..."} → a service with no deployment; without a name, one is picked
 GET    /services/<name>                       → status, active deployment, manifest, bindings, usage, quota, process
-PATCH  /services/<name>                       {"name": "new-name", "egress": ["api.example.com", "*.github.com"], "disk_mb": 2048}: any of them
+PATCH  /services/<name>                       {"name": "new-name", "egress": ["api.example.com", "*.github.com"], "disk_mb": 2048, "rate_limit": 20}: any of them; rate_limit is requests a second per client, past which 429
 POST   /services/<name>/stop | /start         → a stopped service answers 503 and runs no jobs
 DELETE /services/<name>                       → deletes the service and all its data
 
