@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+- A service is renamed in its settings (Name), with the runner 0.2.0 or
+  later; the skill says how agents rename one.
+- Deleting a service asks for its name typed.
+
 ## 0.1.2
 
 - The all-in-one image needs no `ZEROKO_TOKEN`: without one, it makes a

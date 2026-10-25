@@ -272,7 +272,7 @@ Under `{{BASE}}/api`:
 GET    /services                              → [{name, url, status, ...}]
 POST   /services                              {"name": "..."} → a service with no deployment; without a name, one is picked
 GET    /services/<name>                       → status, active deployment, manifest, bindings, usage, quota, process
-PATCH  /services/<name>                       {"egress": ["api.example.com", "*.github.com"], "disk_mb": 2048}
+PATCH  /services/<name>                       {"name": "new-name", "egress": ["api.example.com", "*.github.com"], "disk_mb": 2048}: any of them
 POST   /services/<name>/stop | /start         → a stopped service answers 503 and runs no jobs
 DELETE /services/<name>                       → deletes the service and all its data
 

@@ -7,6 +7,7 @@ import * as React from "react"
 import { cn } from "@/lib/utils"
 
 import { Button } from "@/components/ui/button"
+import { Input } from "@/components/ui/input"
 
 type Toast = { id: number; text: string; error: boolean; leaving?: boolean }
 
@@ -79,22 +80,37 @@ function Toaster() {
   )
 }
 
-type Ask = { message: string; action: string; danger: boolean }
+type Ask = {
+  message: string
+  action: string
+  danger: boolean
+  detail?: string
+  typed?: string
+}
 
 let open: (ask: Ask, done: (ok: boolean) => void) => void = () => {}
 
-/** Asks before doing something; resolves true when the user agrees. */
+/** Asks before doing something; resolves true when the user agrees. With
+ * `typed`, only once they've typed it (a name, for what can't be undone);
+ * `detail` says more, under the question. */
 function confirm(
   message: string,
   action = "Delete",
-  { danger = true }: { danger?: boolean } = {}
+  {
+    danger = true,
+    detail,
+    typed,
+  }: { danger?: boolean; detail?: string; typed?: string } = {}
 ): Promise<boolean> {
-  return new Promise((resolve) => open({ message, action, danger }, resolve))
+  return new Promise((resolve) =>
+    open({ message, action, danger, detail, typed }, resolve)
+  )
 }
 
 function ConfirmDialog() {
   const ref = React.useRef<HTMLDialogElement>(null)
   const done = React.useRef<(ok: boolean) => void>(() => {})
+  const [value, setValue] = React.useState("")
   const [ask, setAsk] = React.useState<Ask>({
     message: "",
     action: "",
@@ -104,6 +120,7 @@ function ConfirmDialog() {
     open = (next, resolve) => {
       done.current = resolve
       setAsk(next)
+      setValue("")
       const d = ref.current
       if (!d) return resolve(false)
       d.returnValue = ""
@@ -120,12 +137,39 @@ function ConfirmDialog() {
       className="m-auto w-[min(440px,calc(100vw-2rem))] rounded-lg border bg-card p-0 text-foreground shadow-[0_24px_60px_-20px_rgb(0_0_0/0.45)] backdrop:bg-background/70 backdrop:backdrop-blur-[2px] open:animate-in open:duration-200 open:fade-in open:zoom-in-[0.98]"
     >
       <form method="dialog" className="flex flex-col gap-6 p-6">
-        <p className="font-serif text-lg leading-snug">{ask.message}</p>
+        <div className="flex flex-col gap-2">
+          <p className="font-serif text-lg leading-snug">{ask.message}</p>
+          {ask.detail && (
+            <p className="text-[13px] leading-snug text-muted-foreground">
+              {ask.detail}
+            </p>
+          )}
+        </div>
+        {ask.typed && (
+          <label className="flex flex-col gap-2 text-[13px] text-muted-foreground">
+            <span>
+              Type{" "}
+              <span className="font-mono text-foreground">{ask.typed}</span> to
+              confirm.
+            </span>
+            <Input
+              name="confirm"
+              value={value}
+              onChange={(e) => setValue(e.target.value)}
+              autoComplete="off"
+              spellCheck={false}
+            />
+          </label>
+        )}
         <div className="flex justify-end gap-2.5">
           <Button value="cancel" variant="outline" autoFocus>
             Cancel
           </Button>
-          <Button value="ok" variant={ask.danger ? "destructive" : "default"}>
+          <Button
+            value="ok"
+            variant={ask.danger ? "destructive" : "default"}
+            disabled={!!ask.typed && value.trim() !== ask.typed}
+          >
             {ask.action}
           </Button>
         </div>

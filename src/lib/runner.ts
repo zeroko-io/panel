@@ -267,6 +267,8 @@ export class Runner {
   deleteService = (name: string) => this.send<void>("DELETE", this.svc(name))
   stop = (name: string) => this.send<Service>("POST", this.svc(name, "/stop"))
   start = (name: string) => this.send<Service>("POST", this.svc(name, "/start"))
+  rename = (name: string, to: string) =>
+    this.send<Service>("PATCH", this.svc(name), { name: to })
   setLimits = (name: string, limits: { egress?: string[]; disk_mb?: number }) =>
     this.send<Service>("PATCH", this.svc(name), limits)
 

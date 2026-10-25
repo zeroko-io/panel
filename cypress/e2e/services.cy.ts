@@ -1,6 +1,7 @@
 // An agent's way in: a token, a service deployed with it through the
-// panel's API, the service's pages, and taking it all back.
-const service = `cy-${Date.now().toString(36)}`
+// panel's API, the service's pages, renaming it, and taking it all back.
+const first = `cy-${Date.now().toString(36)}`
+const service = `${first}-renamed`
 
 describe("services", () => {
   beforeEach(() => cy.signIn())
@@ -14,7 +15,7 @@ describe("services", () => {
       .then((token) => {
         cy.request({
           method: "POST",
-          url: `/api/services/${service}/deployments`,
+          url: `/api/services/${first}/deployments`,
           headers: { Authorization: `Bearer ${token.trim()}` },
           body: {
             files: {
@@ -27,17 +28,28 @@ describe("services", () => {
           .should("eq", "ready")
       })
     cy.open("/")
-    cy.contains("a", service).click()
-    cy.location("pathname").should("eq", `/services/${service}`)
+    cy.contains("a", first).click()
+    cy.location("pathname").should("eq", `/services/${first}`)
     for (const tab of ["traffic", "logs", "versions", "data", "settings"]) {
-      cy.open(`/services/${service}/${tab}`)
-      cy.contains(service)
+      cy.open(`/services/${first}/${tab}`)
+      cy.contains(first)
     }
+  })
+
+  it("renames the service", () => {
+    cy.open(`/services/${first}/settings`)
+    cy.get("input[aria-label='New name']").clear().type(service)
+    cy.contains("button", "Rename").click()
+    cy.get("dialog[open] button[value=ok]").click()
+    cy.location("pathname").should("eq", `/services/${service}/settings`)
+    cy.get("input[aria-label='New name']").should("have.value", service)
   })
 
   it("deletes the service and revokes the token", () => {
     cy.open(`/services/${service}/settings`)
-    cy.contains("button", "Delete service").click()
+    cy.contains("main button", "Delete service").click()
+    cy.get("dialog[open] button[value=ok]").should("be.disabled")
+    cy.get("dialog[open] input[name=confirm]").type(service)
     cy.get("dialog[open] button[value=ok]").click()
     cy.location("pathname").should("eq", "/")
     cy.contains("a", service).should("not.exist")

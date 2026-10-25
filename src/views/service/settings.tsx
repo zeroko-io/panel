@@ -71,6 +71,7 @@ export function ServiceSettings({
 }) {
   return (
     <div className="flex flex-col">
+      <Name service={service} />
       <Egress service={service} allowed={egressAllowed} />
       <Disk service={service} />
       <Vars service={service} />
@@ -386,6 +387,55 @@ function Transfer({ service }: { service: ServiceDetail }) {
   )
 }
 
+function Name({ service }: { service: ServiceDetail }) {
+  const runner = useRunner()
+  const router = useRouter()
+  const root = usePanelRoot()
+  const [name, setName] = useState(service.name)
+  const next = name.trim().toLowerCase()
+  return (
+    <Section
+      title="Name"
+      about="Its address: renamed, it answers at the new one at once, and no longer at the old. Its data, versions and logs stay."
+    >
+      <form
+        className="flex flex-wrap items-center gap-2"
+        onSubmit={(e) => e.preventDefault()}
+      >
+        <Input
+          name="name"
+          value={name}
+          onChange={(e) => setName(e.target.value)}
+          aria-label="New name"
+          autoComplete="off"
+          spellCheck={false}
+          className="w-60"
+        />
+        <ActionButton
+          variant="outline"
+          pending="Renaming"
+          disabled={!next || next === service.name}
+          run={async () => {
+            if (
+              !(await confirm(`Rename ${service.name} to ${next}?`, "Rename", {
+                danger: false,
+                detail: `${service.url} stops answering. Services that call it through a service:${service.name} binding need deploying with the new name.`,
+              }))
+            )
+              return
+            await runner.rename(service.name, next)
+            toast(`${service.name} is ${next} now`)
+            router.push(`${root}/services/${next}/settings`, { scroll: false })
+          }}
+        >
+          Rename
+        </ActionButton>
+      </form>
+      <Mono>{service.url}</Mono>
+    </Section>
+  )
+}
+
 function Danger({ service }: { service: ServiceDetail }) {
   const runner = useRunner()
   const router = useRouter()
@@ -425,7 +475,13 @@ function Danger({ service }: { service: ServiceDetail }) {
             variant="destructive"
             pending="Deleting"
             run={async () => {
-              if (!(await confirm(`Delete ${service.name} and all its data?`)))
+              if (
+                !(await confirm(
+                  `Delete ${service.name} and all its data?`,
+                  "Delete service",
+                  { typed: service.name }
+                ))
+              )
                 return
               await runner.deleteService(service.name)
               toast(`${service.name} deleted`)
