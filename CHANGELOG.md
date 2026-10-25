@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 0.1.3
 
 - A service is renamed in its settings (Name), with the runner 0.2.0 or
   later; the skill says how agents rename one.
