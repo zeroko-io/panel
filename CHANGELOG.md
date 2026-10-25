@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 0.1.4
 
 - Settings: CPU per minute, realtime connections and requests per client,
   with a runner that has them (0.3.0 and later).
