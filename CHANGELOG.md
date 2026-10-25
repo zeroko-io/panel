@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+- `/mcp`: the runner's MCP server (runner 0.3.0 and later) at the panel's
+  address, for agents with their own token, as `/api` is; the skill says
+  so.
+
 ## 0.1.3
 
 - A service is renamed in its settings (Name), with the runner 0.2.0 or

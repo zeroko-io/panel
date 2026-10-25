@@ -14,6 +14,9 @@ bindings: `db` (SQLite),
 between requests: put every piece of state in a binding.
 
 API base: `{{BASE}}/api`. Every request takes `Authorization: Bearer <token>`.
+The same API is an MCP server at `{{BASE}}/mcp` (Streamable HTTP), with the
+same token: a client that speaks MCP can use its tools instead of these
+calls.
 Errors are `{"error": {"code": "...", "message": "..."}}`.
 
 ## Write a service
