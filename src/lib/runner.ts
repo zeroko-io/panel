@@ -4,12 +4,12 @@
 
 export type ServiceStatus = "running" | "stopped" | "not_deployed"
 
-export type BindingType =
+type BindingType =
   "db" | "files" | "jobs" | "realtime" | "assets" | `service:${string}`
 
-export type Cron = { schedule: string; payload?: unknown }
+type Cron = { schedule: string; payload?: unknown }
 
-export type Manifest = {
+type Manifest = {
   main: string
   bindings?: Record<string, BindingType>
   crons?: Cron[]
@@ -48,7 +48,7 @@ export type Traffic = {
   outbound_errors: number
 }
 
-export type Process = {
+type Process = {
   pid: number
   started: number
   busy: number
@@ -82,7 +82,7 @@ export type DeploymentView = Deployment & {
 
 export type Source = { main: string; files: Record<string, string | null> }
 
-export type LogSource = "request" | "console" | "fetch" | "runtime"
+type LogSource = "request" | "console" | "fetch" | "runtime"
 
 export type LogEntry = {
   id: number
@@ -93,7 +93,7 @@ export type LogEntry = {
   message: string
 }
 
-export type MetricsPoint = {
+type MetricsPoint = {
   t: number
   requests: number
   errors: number
@@ -132,7 +132,7 @@ export type QueryResult = {
   lastRowId: number
 }
 
-export type FileInfo = {
+type FileInfo = {
   key: string
   size: number
   type: string
@@ -192,7 +192,7 @@ export type System = {
   data_bytes: number
 }
 
-export type SystemLine = { seq: number; ts: number; message: string }
+type SystemLine = { seq: number; ts: number; message: string }
 
 export class RunnerError extends Error {
   constructor(

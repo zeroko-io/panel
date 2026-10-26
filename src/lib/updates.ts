@@ -4,7 +4,7 @@
 
 export const panelVersion = process.env.ZEROKO_PANEL_VERSION ?? "dev"
 
-export type Release = { version: string; url: string }
+type Release = { version: string; url: string }
 
 export type Update = Release & { name: string; current: string }
 

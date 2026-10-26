@@ -5,7 +5,7 @@ import { redirect } from "next/navigation"
 
 import { checkPassword, endSession, startSession } from "./session"
 
-export type FormState = { error?: string }
+type FormState = { error?: string }
 
 let failedAt = 0
 

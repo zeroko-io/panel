@@ -10,7 +10,7 @@ import { toast } from "@/components/ui/feedback"
 import { Input } from "@/components/ui/input"
 import { clock, plural } from "@/lib/format"
 
-export type LogLine = {
+type LogLine = {
   id: number
   ts: number
   level: string

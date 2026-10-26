@@ -1,6 +1,6 @@
 // The panel's settings, from its environment. Server code only.
 
-export type Config = {
+type Config = {
   runnerUrl: string // the runner's API, e.g. http://runner:8081
   token: string // the runner's root token
   password: string // the admin's password
