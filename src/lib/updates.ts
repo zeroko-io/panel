@@ -35,11 +35,13 @@ async function latest(repo: string): Promise<Release | null> {
   }
 }
 
-/** "0.2.0+abc", "0.2.0-dev": the numbers, and whether it's a pre-release. */
+/** "0.2.0+abc", "0.2.0-dev": the numbers, and whether it's a pre-release.
+ * git describe's "0.2.0-3-gabc1234" is 3 commits after 0.2.0, not before. */
 function parse(v: string): { nums: number[]; pre: boolean } | null {
   const m = /^v?(\d+)\.(\d+)\.(\d+)(-[^+]*)?/.exec(v)
   if (!m) return null
-  return { nums: [Number(m[1]), Number(m[2]), Number(m[3])], pre: !!m[4] }
+  const pre = !!m[4] && !/^-\d+-g[0-9a-f]+$/.test(m[4])
+  return { nums: [Number(m[1]), Number(m[2]), Number(m[3])], pre }
 }
 
 /** Whether release a is newer than the version b runs. */

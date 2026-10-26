@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+- A build after a release (git describe's `0.1.4-3-gabc1234`) no longer
+  shows that release as an update.
+- A change sent with `Origin: null` is refused with 403, not a 500.
+
 ## 0.1.4
 
 - Settings: CPU per minute, realtime connections and requests per client,

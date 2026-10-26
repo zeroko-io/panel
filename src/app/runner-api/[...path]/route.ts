@@ -35,7 +35,7 @@ async function pass(
   if (
     unsafe &&
     site !== "same-origin" &&
-    (!origin || new URL(origin).host !== req.headers.get("host"))
+    (!origin || URL.parse(origin)?.host !== req.headers.get("host"))
   ) {
     return fail(403, "forbidden", "Changes must come from the panel.")
   }
