@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 0.1.5
 
 - A build after a release (git describe's `0.1.4-3-gabc1234`) no longer
   shows that release as an update.
